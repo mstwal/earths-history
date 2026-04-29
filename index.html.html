@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Earth's History Game Show</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0f1e;
+  --bg2: #111827;
+  --bg3: #1a2235;
+  --accent: #f5a623;
+  --accent2: #e8f54e;
+  --blue: #4a9eff;
+  --green: #3ecf6a;
+  --red: #f05050;
+  --purple: #9b7fe8;
+  --text: #f0f4ff;
+  --text2: #8a9bc0;
+  --border: rgba(255,255,255,0.08);
+  --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.display-font { font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; }
+
+/* Stars background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 15%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 60%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 40% 75%, rgba(255,255,255,0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 40%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(2px 2px at 10% 80%, rgba(255,255,255,0.1) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 50%, rgba(255,255,255,0.2) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.screen { display: none; position: relative; z-index: 1; }
+.screen.active { display: block; }
+
+/* ─── SETUP ─── */
+#setup {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+.game-logo {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.game-logo h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 56px;
+  letter-spacing: 4px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+.game-logo p { color: var(--text2); font-size: 14px; margin-top: 6px; }
+.team-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+.team-input-wrap label {
+  display: block;
+  font-size: 11px;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+}
+.team-input-wrap input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 9px 12px;
+  transition: border-color 0.2s;
+}
+.team-input-wrap input:focus { outline: none; border-color: var(--accent); }
+.btn {
+  display: inline-block;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.btn:active { transform: scale(0.97); }
+.btn-gold {
+  background: linear-gradient(135deg, var(--accent), #e8941a);
+  color: #1a0f00;
+  width: 100%;
+  font-size: 16px;
+  padding: 14px;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 2px;
+  font-size: 20px;
+}
+.btn-gold:hover { filter: brightness(1.1); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14px;
+}
+.btn-outline:hover { background: var(--bg3); border-color: rgba(255,255,255,0.2); }
+.btn-green { background: var(--green); color: #001a0a; font-weight: 600; }
+.btn-green:hover { filter: brightness(1.1); }
+.btn-red { background: var(--red); color: #fff; font-weight: 600; }
+.btn-red:hover { filter: brightness(1.1); }
+
+/* ─── MENU ─── */
+#menu {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+.round-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.round-card:hover { border-color: var(--accent); transform: translateX(4px); }
+.round-icon {
+  font-size: 28px;
+  min-width: 44px;
+  text-align: center;
+}
+.round-card h3 { font-size: 17px; font-weight: 600; margin-bottom: 2px; }
+.round-card p { font-size: 13px; color: var(--text2); }
+.score-mini {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 1.5rem;
+}
+.score-chip {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 13px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.score-chip .pts { color: var(--accent); font-weight: 600; }
+
+/* ─── BUZZER ─── */
+#buzzer-screen {
+  height: 100vh;
+  display: none;
+  flex-direction: column;
+}
+#buzzer-screen.active { display: flex; }
+.buzzer-header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+.buzzer-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--accent); }
+.buzzer-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 12px;
+  padding: 12px;
+  overflow: hidden;
+}
+.buzz-btn {
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(18px, 3vw, 28px);
+  letter-spacing: 2px;
+  transition: all 0.1s;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.buzz-btn:active { transform: scale(0.95); }
+.buzz-btn.buzzed-first {
+  animation: pulse-win 0.5s ease;
+  box-shadow: 0 0 40px currentColor;
+}
+.buzz-btn.buzzed-other { opacity: 0.3; }
+.buzz-btn .buzz-time {
+  font-size: clamp(11px, 1.5vw, 14px);
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 0;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+@keyframes pulse-win {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.buzz-status {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.buzz-winner-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 2px;
+}
+.buzz-controls { display: flex; gap: 8px; }
+
+/* ─── TRIVIA ─── */
+#trivia {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+.trivia-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.q-num { font-size: 13px; color: var(--text2); }
+.cat-badge {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.timer-circle {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--bg3);
+  border: 2px solid var(--blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  color: var(--blue);
+  transition: border-color 0.3s, color 0.3s;
+}
+.timer-circle.warn { border-color: var(--red); color: var(--red); }
+.q-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+.q-text {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  color: var(--text);
+}
+.opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.opt-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s;
+  line-height: 1.4;
+}
+.opt-btn:hover:not(:disabled) { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); }
+.opt-btn.correct { background: rgba(62,207,106,0.15); border-color: var(--green); color: #a8f5c0; }
+.opt-btn.wrong { background: rgba(240,80,80,0.15); border-color: var(--red); color: #f5aaaa; }
+.opt-btn:disabled { cursor: default; }
+.trivia-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.award-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.team-sel {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 8px 12px;
+}
+.feedback-bar {
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 14px;
+  margin-bottom: 1rem;
+}
+.feedback-bar.correct { background: rgba(62,207,106,0.15); border: 1px solid var(--green); color: #a8f5c0; }
+.feedback-bar.wrong { background: rgba(240,80,80,0.12); border: 1px solid var(--red); color: #f5aaaa; }
+
+/* ─── TIMELINE ─── */
+#timeline-screen {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+.event-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+}
+.event-letter {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  color: var(--accent);
+  min-width: 28px;
+}
+.event-num-badge {
+  background: var(--blue);
+  color: #001533;
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 20px;
+  padding: 2px 10px;
+  min-width: 28px;
+  text-align: center;
+}
+.tl-time { color: var(--text2); font-size: 12px; margin-left: auto; }
+.tl-award-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 1rem; }
+.tl-award-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tl-award-item label { font-size: 12px; color: var(--text2); }
+.tl-award-item .row { display: flex; gap: 6px; align-items: center; }
+.pts-input {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 6px 10px;
+  width: 60px;
+}
+
+/* ─── LIGHTNING ─── */
+#lightning {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+.clue-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+.clue-item {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 15px;
+  display: flex;
+  gap: 10px;
+}
+.clue-num { color: var(--accent); font-weight: 600; min-width: 20px; }
+.fossil-reveal {
+  margin-top: 1rem;
+  background: rgba(62,207,106,0.12);
+  border: 1px solid var(--green);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #a8f5c0;
+  display: none;
+}
+
+/* ─── SCOREBOARD ─── */
+#scoreboard {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+.podium-wrap {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  margin: 1.5rem 0;
+}
+.podium-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.podium-block {
+  width: 90px;
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 10px;
+}
+.podium-rank { font-family: 'Bebas Neue', sans-serif; font-size: 22px; margin-bottom: 2px; }
+.podium-name { font-size: 12px; font-weight: 600; text-align: center; padding: 0 6px; }
+.podium-score { font-size: 20px; font-weight: 700; }
+.full-rank {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rank-num { color: var(--text2); font-size: 13px; min-width: 30px; }
+.rank-pts { font-weight: 700; color: var(--accent); font-size: 18px; }
+.section-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+.divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+.back-row { display: flex; gap: 8px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div id="setup" class="screen active">
+  <div class="game-logo">
+    <h1>Earth's History</h1>
+    <p class="display-font" style="font-size:18px; color:var(--text2);">GAME SHOW — 3 ROUNDS</p>
+  </div>
+  <div class="team-grid" id="team-inputs"></div>
+  <button class="btn btn-gold" onclick="startMenu()">START GAME →</button>
+</div>
+
+<!-- MENU -->
+<div id="menu" class="screen">
+  <div style="max-width:700px; margin:0 auto; padding:2rem 1.5rem;">
+    <div class="section-label">CHOOSE A ROUND</div>
+    <div class="round-card" onclick="startTrivia()">
+      <div class="round-icon">🌍</div>
+      <div>
+        <h3>Round 1 — Trivia Blitz</h3>
+        <p>20 multiple-choice questions · 3 pts each · 15-second timer · ~20 min</p>
+      </div>
+    </div>
+    <div class="round-card" onclick="startTimeline()">
+      <div class="round-icon">⏳</div>
+      <div>
+        <h3>Round 2 — Timeline Scramble</h3>
+        <p>Order 10 Earth events oldest → newest · up to 10 pts per team · ~15 min</p>
+      </div>
+    </div>
+    <div class="round-card" onclick="startLightning()">
+      <div class="round-icon">🦕</div>
+      <div>
+        <h3>Round 3 — Lightning Fossils</h3>
+        <p>12 mystery organism clue sets · 1 pt each · ~15 min</p>
+      </div>
+    </div>
+    <div class="round-card" onclick="startBuzzer()">
+      <div class="round-icon">🔔</div>
+      <div>
+        <h3>Buzzer — Team Buzzer Board</h3>
+        <p>All 9 teams buzz in · timestamps who answered first · use with any round</p>
+      </div>
+    </div>
+    <div class="round-card" onclick="showScores()">
+      <div class="round-icon">🏆</div>
+      <div>
+        <h3>Scoreboard</h3>
+        <p>View full rankings and podium</p>
+      </div>
+    </div>
+    <div style="margin-top:1rem;" class="section-label" style="font-size:16px;">LIVE SCORES</div>
+    <div class="score-mini" id="menu-scores"></div>
+  </div>
+</div>
+
+<!-- BUZZER -->
+<div id="buzzer-screen" class="screen">
+  <div class="buzzer-header">
+    <h2>🔔 BUZZER BOARD</h2>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-outline" onclick="resetBuzzer()" style="font-size:13px; padding:8px 14px;">Reset Buzzers</button>
+      <button class="btn btn-outline" onclick="showMenu()" style="font-size:13px; padding:8px 14px;">← Menu</button>
+    </div>
+  </div>
+  <div class="buzzer-grid" id="buzzer-grid"></div>
+  <div class="buzz-status">
+    <div id="buzz-winner-text" class="buzz-winner-text" style="color:var(--text2);">Waiting for first buzz...</div>
+    <div class="buzz-controls">
+      <button class="btn btn-green" id="buzz-award-btn" onclick="awardBuzzPoint()" style="display:none; padding:8px 14px; font-size:13px;">+ Award 3 pts</button>
+      <button class="btn btn-outline" onclick="resetBuzzer()" style="padding:8px 14px; font-size:13px;">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- TRIVIA -->
+<div id="trivia" class="screen">
+  <div class="trivia-header">
+    <div>
+      <div class="q-num" id="q-counter">Question 1 / 20</div>
+      <div class="cat-badge" id="q-category" style="margin-top:4px;"></div>
+    </div>
+    <div class="timer-circle" id="timer-display">15</div>
+  </div>
+  <div class="q-card">
+    <div class="q-text" id="q-text"></div>
+    <div class="opt-grid" id="q-options"></div>
+  </div>
+  <div id="q-feedback" style="display:none;"></div>
+  <div class="trivia-footer">
+    <div class="award-row">
+      <span style="font-size:13px; color:var(--text2);">Award to:</span>
+      <select class="team-sel" id="answering-team"></select>
+      <button class="btn btn-green" id="correct-btn" onclick="awardPoint(true)" style="display:none; padding:8px 14px; font-size:13px;">✓ +3 pts</button>
+      <button class="btn btn-red" id="wrong-btn" onclick="awardPoint(false)" style="display:none; padding:8px 14px; font-size:13px;">✗ Wrong</button>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-outline" onclick="showMenu()" style="font-size:13px;">Menu</button>
+      <button class="btn btn-outline" id="next-q-btn" onclick="nextQuestion()" style="display:none; font-size:13px;">Next →</button>
+    </div>
+  </div>
+  <div style="margin-top:1.5rem;" id="live-scores-trivia"></div>
+</div>
+
+<!-- TIMELINE -->
+<div id="timeline-screen" class="screen">
+  <div class="section-label">TIMELINE SCRAMBLE</div>
+  <p style="color:var(--text2); font-size:14px; margin-bottom:1rem;">Project these shuffled events. Each team writes the correct order 1–10 on paper (oldest first). Award up to 10 pts per team for correct placements.</p>
+  <div id="scrambled-events"></div>
+  <button class="btn btn-gold" id="reveal-tl-btn" onclick="revealTimeline()" style="margin-top:1rem; width:100%; font-size:18px;">REVEAL CORRECT ORDER</button>
+  <div id="timeline-answer" style="display:none; margin-top:1.5rem;"></div>
+  <div class="section-label" style="margin-top:1.5rem; font-size:18px;">AWARD POINTS</div>
+  <div class="tl-award-grid" id="timeline-scoring"></div>
+  <div class="divider"></div>
+  <div class="back-row">
+    <button class="btn btn-outline" onclick="showMenu()">← Menu</button>
+  </div>
+</div>
+
+<!-- LIGHTNING FOSSILS -->
+<div id="lightning" class="screen">
+  <div class="trivia-header">
+    <div>
+      <div class="q-num" id="lq-counter">Clue Set 1 / 12</div>
+      <div class="cat-badge" style="margin-top:4px; color:var(--purple);">MYSTERY FOSSIL</div>
+    </div>
+    <div class="timer-circle" id="ltimer-display" style="border-color:var(--purple); color:var(--purple);">30</div>
+  </div>
+  <div class="clue-card">
+    <div id="lq-clues"></div>
+    <div class="fossil-reveal" id="lq-reveal"></div>
+  </div>
+  <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:1rem;">
+    <button class="btn btn-outline" onclick="revealFossil()">Reveal Answer</button>
+    <select class="team-sel" id="lteam-select"></select>
+    <button class="btn btn-green" onclick="awardLightning()" style="padding:8px 14px; font-size:13px;">+1 pt</button>
+    <button class="btn btn-outline" onclick="nextLightning()" style="font-size:13px;">Next →</button>
+    <button class="btn btn-outline" onclick="showMenu()" style="font-size:13px; margin-left:auto;">Menu</button>
+  </div>
+  <div id="live-scores-lightning"></div>
+</div>
+
+<!-- SCOREBOARD -->
+<div id="scoreboard" class="screen">
+  <div class="section-label">SCOREBOARD</div>
+  <div class="podium-wrap" id="podium-display"></div>
+  <div id="full-scores"></div>
+  <div class="divider"></div>
+  <div class="back-row">
+    <button class="btn btn-outline" onclick="showMenu()">← Menu</button>
+    <button class="btn btn-red" onclick="resetGame()" style="font-size:13px; padding:10px 16px;">Reset All Scores</button>
+  </div>
+</div>
+
+<script>
+const TEAM_COLORS = [
+  '#f5a623','#4a9eff','#3ecf6a','#e8f54e','#f05050',
+  '#9b7fe8','#ff7eb3','#4ecfcf','#ffab5e'
+];
+const TEAM_DARK = [
+  '#3d2800','#001533','#001a0a','#2a2d00','#2d0000',
+  '#1e1040','#2d0016','#003333','#3d2000'
+];
+
+const QUESTIONS = [
+  { q: "What do scientists call the study of rock layers to understand Earth's history?", opts: ["Geology", "Stratigraphy", "Paleontology", "Mineralogy"], ans: 1, cat: "Rock Record" },
+  { q: "Which type of rock is most likely to contain fossils?", opts: ["Igneous", "Metamorphic", "Sedimentary", "Granite"], ans: 2, cat: "Rock Record" },
+  { q: "About how old is the Earth?", opts: ["4.5 million years", "65 million years", "4.5 billion years", "1 billion years"], ans: 2, cat: "Geologic Time" },
+  { q: "What is the name of the ancient supercontinent that existed before the continents split apart?", opts: ["Eurasia", "Pangaea", "Gondwana", "Laurasia"], ans: 1, cat: "Plate Tectonics" },
+  { q: "What do we call a preserved remain or trace of an ancient organism found in rock?", opts: ["Mineral", "Artifact", "Sediment", "Fossil"], ans: 3, cat: "Fossils" },
+  { q: "The extinction of the dinosaurs happened approximately how long ago?", opts: ["4.5 billion years ago", "252 million years ago", "65 million years ago", "10,000 years ago"], ans: 2, cat: "Mass Extinctions" },
+  { q: "Which era are we currently living in?", opts: ["Paleozoic", "Mesozoic", "Precambrian", "Cenozoic"], ans: 3, cat: "Geologic Time" },
+  { q: "What gas, produced by early cyanobacteria, slowly built up in Earth's early atmosphere?", opts: ["Carbon dioxide", "Oxygen", "Nitrogen", "Methane"], ans: 1, cat: "Early Earth" },
+  { q: "Which law states that in undisturbed rock layers, the oldest layers are at the bottom?", opts: ["Law of Superposition", "Law of Gravity", "Law of Fossil Succession", "Law of Uniformity"], ans: 0, cat: "Rock Record" },
+  { q: "What event wiped out about 96% of all marine species about 252 million years ago?", opts: ["K-Pg Extinction", "Permian Extinction", "Ordovician Extinction", "Devonian Extinction"], ans: 1, cat: "Mass Extinctions" },
+  { q: "What are index fossils used for?", opts: ["Museum decoration", "Dating rock layers", "Studying today's climate", "Building materials"], ans: 1, cat: "Fossils" },
+  { q: "Where on Earth do new ocean floors form?", opts: ["Subduction zones", "Mountain ranges", "Mid-ocean ridges", "Deep sea trenches"], ans: 2, cat: "Plate Tectonics" },
+  { q: "The Cambrian Explosion refers to what event?", opts: ["A massive volcanic eruption", "Rapid appearance of complex life forms", "The first mass extinction", "Formation of Earth's core"], ans: 1, cat: "Early Life" },
+  { q: "What is the longest time division in the geologic time scale?", opts: ["Period", "Era", "Eon", "Epoch"], ans: 2, cat: "Geologic Time" },
+  { q: "What does an unconformity in rock layers represent?", opts: ["A type of fossil", "A gap in the rock record", "An ancient river bed", "A volcanic layer"], ans: 1, cat: "Rock Record" },
+  { q: "Which period did the first dinosaurs appear?", opts: ["Jurassic", "Cretaceous", "Triassic", "Permian"], ans: 2, cat: "Early Life" },
+  { q: "What type of boundary is the San Andreas Fault in California?", opts: ["Convergent", "Divergent", "Transform", "Subduction"], ans: 2, cat: "Plate Tectonics" },
+  { q: "Which of these is NOT a type of fossil?", opts: ["Mold fossil", "Cast fossil", "Trace fossil", "Igneous fossil"], ans: 3, cat: "Fossils" },
+  { q: "Early Earth had very little of which gas that is abundant in today's atmosphere?", opts: ["Nitrogen", "Carbon dioxide", "Helium", "Oxygen"], ans: 3, cat: "Early Earth" },
+  { q: "How do scientists use radioactive decay to date ancient rocks?", opts: ["They measure rock color", "They count sediment layers", "They measure parent to daughter isotope ratios", "They look at fossil size"], ans: 2, cat: "Rock Record" },
+];
+
+const TIMELINE_EVENTS = [
+  { label: "Earth forms", time: "4.5 billion years ago" },
+  { label: "First single-celled life appears", time: "3.8 billion years ago" },
+  { label: "Oxygen builds up in atmosphere (Great Oxidation Event)", time: "2.4 billion years ago" },
+  { label: "First multicellular life appears", time: "600 million years ago" },
+  { label: "Cambrian Explosion of complex life", time: "541 million years ago" },
+  { label: "First land plants appear", time: "470 million years ago" },
+  { label: "Permian Mass Extinction — Great Dying", time: "252 million years ago" },
+  { label: "First dinosaurs appear", time: "230 million years ago" },
+  { label: "K-Pg Extinction — dinosaurs go extinct", time: "65 million years ago" },
+  { label: "First modern humans appear", time: "300,000 years ago" },
+];
+
+const FOSSIL_CLUES = [
+  { clues: ["I am one of the most common fossils found in sedimentary rock.", "I lived in ancient seas and had a beautiful coiled shell.", "I am an extinct cephalopod — my name starts with 'A'."], answer: "Ammonite" },
+  { clues: ["I am a small ancient sea creature with three distinct body segments.", "I am often used as an index fossil to date Paleozoic rocks.", "I look like an armored pill bug from the ancient ocean."], answer: "Trilobite" },
+  { clues: ["I lived alongside dinosaurs but could fly.", "I am NOT a dinosaur — I am an ancient flying reptile.", "My wings were made of skin stretched over long finger bones."], answer: "Pterosaur" },
+  { clues: ["I am an ancient relative of the elephant, with huge curved tusks.", "My frozen remains have been found perfectly preserved in Siberian permafrost.", "I went extinct about 10,000 years ago at the end of the last Ice Age."], answer: "Woolly Mammoth" },
+  { clues: ["I am an ancient fish whose fins look like early stubby legs.", "My discovery was huge — I show the transition from water to land life.", "My fossil was found in Canada. Scientists named me Tiktaalik."], answer: "Tiktaalik" },
+  { clues: ["I am not a dinosaur, but I lived in the ocean at the same time.", "I was a huge marine reptile with four large paddle-like flippers.", "Some people think I inspired legends of the Loch Ness Monster."], answer: "Plesiosaur" },
+  { clues: ["I am a giant ancient shark — my teeth were the size of your hand.", "I went extinct about 3.6 million years ago.", "My name literally means 'big tooth.'"], answer: "Megalodon" },
+  { clues: ["I am a trace fossil — I am not an organism, but evidence one existed.", "You might find me as an ancient footprint, burrow, or bite mark in rock.", "Scientists use me to understand animal behavior millions of years ago."], answer: "Trace Fossil (ichnofossil)" },
+  { clues: ["I am a 3.5-billion-year-old layered rock structure made by ancient cyanobacteria.", "I am one of the oldest signs of life on Earth.", "My modern living relatives still exist in Shark Bay, Australia."], answer: "Stromatolite" },
+  { clues: ["I am a thin layer of rock found worldwide at the K-Pg boundary.", "I contain very high levels of iridium, a metal rare on Earth but common in asteroids.", "Finding me helped scientists prove that a meteor impact killed the dinosaurs."], answer: "K-Pg Iridium Layer" },
+  { clues: ["I am a small ancient sea creature that built reefs in Paleozoic oceans.", "Scientists count my daily growth rings to figure out how fast Earth spun millions of years ago.", "I am now extinct — my name has the word 'rugose' in it."], answer: "Rugose Coral" },
+  { clues: ["I was a massive plant-eating dinosaur with a very long neck.", "My fossils are found on multiple continents — evidence that they were once connected.", "I am a sauropod — one of the largest animals ever to walk the Earth."], answer: "Sauropod (e.g. Brachiosaurus)" },
+];
+
+let teams = [], scores = [], qIndex = 0, lqIndex = 0;
+let timerInterval = null, timerVal = 15, revealed = false;
+let buzzWinner = null, buzzTimes = {};
+
+function buildSetup() {
+  const c = document.getElementById('team-inputs');
+  c.innerHTML = '';
+  for (let i = 0; i < 9; i++) {
+    const d = document.createElement('div');
+    d.className = 'team-input-wrap';
+    d.innerHTML = `<label>Team ${i+1} Name</label><input type="text" value="Team ${i+1}" id="tname-${i}">`;
+    c.appendChild(d);
+  }
+}
+
+function startMenu() {
+  teams = []; scores = [];
+  for (let i = 0; i < 9; i++) {
+    const n = document.getElementById(`tname-${i}`).value.trim() || `Team ${i+1}`;
+    teams.push(n); scores.push(0);
+  }
+  showMenu();
+}
+
+function showMenu() {
+  showScreen('menu');
+  renderMenuScores();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  clearInterval(timerInterval);
+}
+
+function buildTeamSelect(elId) {
+  const sel = document.getElementById(elId);
+  if (!sel) return;
+  sel.innerHTML = teams.map((t, i) => `<option value="${i}">${t}</option>`).join('');
+}
+
+// BUZZER
+function startBuzzer() {
+  showScreen('buzzer-screen');
+  buildBuzzerGrid();
+  resetBuzzer();
+}
+
+function buildBuzzerGrid() {
+  const g = document.getElementById('buzzer-grid');
+  g.innerHTML = teams.map((t, i) => `
+    <button class="buzz-btn" id="buzz-${i}"
+      style="background:${TEAM_COLORS[i]}; color:${TEAM_DARK[i]};"
+      onclick="doBuzz(${i})">
+      <span>${t}</span>
+      <span class="buzz-time" id="buzz-time-${i}"></span>
+    </button>`).join('');
+}
+
+function doBuzz(i) {
+  const now = performance.now();
+  if (buzzWinner === null) {
+    buzzWinner = i;
+    buzzTimes[i] = now;
+    document.getElementById(`buzz-${i}`).classList.add('buzzed-first');
+    document.getElementById(`buzz-time-${i}`).textContent = '⚡ FIRST!';
+    document.getElementById('buzz-winner-text').textContent = `🏆 ${teams[i]} buzzed first!`;
+    document.getElementById('buzz-winner-text').style.color = TEAM_COLORS[i];
+    document.getElementById('buzz-award-btn').style.display = 'inline-block';
+    for (let j = 0; j < teams.length; j++) {
+      if (j !== i) document.getElementById(`buzz-${j}`).classList.add('buzzed-other');
+    }
+    try { const a = new AudioContext(); const o = a.createOscillator(); const g = a.createGain(); o.connect(g); g.connect(a.destination); o.frequency.setValueAtTime(880,a.currentTime); o.frequency.exponentialRampToValueAtTime(440,a.currentTime+0.3); g.gain.setValueAtTime(0.3,a.currentTime); g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+0.4); o.start(a.currentTime); o.stop(a.currentTime+0.4); } catch(e){}
+  } else {
+    if (!buzzTimes[i]) {
+      buzzTimes[i] = now;
+      const delta = ((now - buzzTimes[buzzWinner])/1000).toFixed(2);
+      document.getElementById(`buzz-time-${i}`).textContent = `+${delta}s`;
+    }
+  }
+}
+
+function resetBuzzer() {
+  buzzWinner = null; buzzTimes = {};
+  for (let i = 0; i < teams.length; i++) {
+    const b = document.getElementById(`buzz-${i}`);
+    if (b) { b.classList.remove('buzzed-first','buzzed-other'); }
+    const t = document.getElementById(`buzz-time-${i}`);
+    if (t) t.textContent = '';
+  }
+  document.getElementById('buzz-winner-text').textContent = 'Waiting for first buzz...';
+  document.getElementById('buzz-winner-text').style.color = 'var(--text2)';
+  document.getElementById('buzz-award-btn').style.display = 'none';
+}
+
+function awardBuzzPoint() {
+  if (buzzWinner !== null) {
+    scores[buzzWinner] += 3;
+    resetBuzzer();
+  }
+}
+
+// TRIVIA
+function startTrivia() {
+  qIndex = 0;
+  showScreen('trivia');
+  buildTeamSelect('answering-team');
+  loadQuestion();
+  renderLiveScores('live-scores-trivia');
+}
+
+function loadQuestion() {
+  clearInterval(timerInterval);
+  revealed = false;
+  const q = QUESTIONS[qIndex];
+  document.getElementById('q-counter').textContent = `Question ${qIndex+1} / ${QUESTIONS.length}`;
+  document.getElementById('q-category').textContent = q.cat;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-feedback').style.display = 'none';
+  document.getElementById('correct-btn').style.display = 'none';
+  document.getElementById('wrong-btn').style.display = 'none';
+  document.getElementById('next-q-btn').style.display = 'none';
+  const opts = document.getElementById('q-options');
+  opts.innerHTML = q.opts.map((o, i) => `<button class="opt-btn" id="opt-${i}" onclick="revealAnswer(${i})">${String.fromCharCode(65+i)}. ${o}</button>`).join('');
+  timerVal = 15;
+  const td = document.getElementById('timer-display');
+  td.textContent = timerVal; td.classList.remove('warn');
+  timerInterval = setInterval(() => {
+    timerVal--;
+    td.textContent = timerVal;
+    if (timerVal <= 5) td.classList.add('warn');
+    if (timerVal <= 0) { clearInterval(timerInterval); revealAnswer(-1); }
+  }, 1000);
+}
+
+function revealAnswer(chosen) {
+  if (revealed) return;
+  revealed = true;
+  clearInterval(timerInterval);
+  const q = QUESTIONS[qIndex];
+  for (let i = 0; i < q.opts.length; i++) {
+    const b = document.getElementById(`opt-${i}`);
+    b.disabled = true;
+    if (i === q.ans) b.classList.add('correct');
+    else if (i === chosen && i !== q.ans) b.classList.add('wrong');
+  }
+  const fb = document.getElementById('q-feedback');
+  if (chosen === q.ans) {
+    fb.innerHTML = `<div class="feedback-bar correct">Correct! Award 3 points to the team that answered.</div>`;
+    document.getElementById('correct-btn').style.display = 'inline-block';
+  } else {
+    fb.innerHTML = `<div class="feedback-bar wrong">Correct answer: <strong>${q.opts[q.ans]}</strong></div>`;
+    document.getElementById('wrong-btn').style.display = 'inline-block';
+  }
+  fb.style.display = 'block';
+  document.getElementById('next-q-btn').style.display = 'inline-block';
+}
+
+function awardPoint(correct) {
+  if (correct) { scores[parseInt(document.getElementById('answering-team').value)] += 3; }
+  document.getElementById('correct-btn').style.display = 'none';
+  document.getElementById('wrong-btn').style.display = 'none';
+  renderLiveScores('live-scores-trivia');
+}
+
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= QUESTIONS.length) showScores(); else loadQuestion();
+}
+
+// TIMELINE
+function startTimeline() {
+  showScreen('timeline-screen');
+  const shuffled = [...TIMELINE_EVENTS].sort(() => Math.random() - 0.5);
+  document.getElementById('scrambled-events').innerHTML =
+    '<p style="color:var(--text2);font-size:13px;margin-bottom:12px;">These 10 events are in RANDOM order. Teams write A–J and number them 1–10 (1 = oldest):</p>' +
+    shuffled.map((e, i) => `<div class="event-card"><span class="event-letter">${String.fromCharCode(65+i)}</span><span>${e.label}</span></div>`).join('');
+  document.getElementById('timeline-answer').style.display = 'none';
+  document.getElementById('reveal-tl-btn').style.display = 'inline-block';
+  document.getElementById('timeline-scoring').innerHTML = teams.map((t, i) => `
+    <div class="tl-award-item">
+      <label>${t}</label>
+      <div class="row">
+        <input type="number" class="pts-input" id="tl-pts-${i}" min="0" max="10" value="0">
+        <button class="btn btn-green" onclick="awardTimeline(${i})" style="font-size:12px;padding:6px 10px;">+pts</button>
+      </div>
+    </div>`).join('');
+}
+
+function revealTimeline() {
+  const ta = document.getElementById('timeline-answer');
+  ta.style.display = 'block';
+  ta.innerHTML = '<div class="section-label" style="font-size:18px;margin-bottom:0.75rem;">CORRECT ORDER</div>' +
+    TIMELINE_EVENTS.map((e, i) => `<div class="event-card"><span class="event-num-badge">${i+1}</span><span>${e.label}</span><span class="tl-time">${e.time}</span></div>`).join('');
+  document.getElementById('reveal-tl-btn').style.display = 'none';
+}
+
+function awardTimeline(i) {
+  const pts = parseInt(document.getElementById(`tl-pts-${i}`).value) || 0;
+  scores[i] += pts;
+  document.getElementById(`tl-pts-${i}`).value = 0;
+}
+
+// LIGHTNING
+function startLightning() {
+  lqIndex = 0;
+  showScreen('lightning');
+  buildTeamSelect('lteam-select');
+  loadLightning();
+  renderLiveScores('live-scores-lightning');
+}
+
+function loadLightning() {
+  clearInterval(timerInterval);
+  const lq = FOSSIL_CLUES[lqIndex];
+  document.getElementById('lq-counter').textContent = `Clue Set ${lqIndex+1} / ${FOSSIL_CLUES.length}`;
+  document.getElementById('lq-reveal').style.display = 'none';
+  document.getElementById('lq-clues').innerHTML = lq.clues.map((c, j) => `<div class="clue-item"><span class="clue-num">${j+1}</span><span>${c}</span></div>`).join('');
+  timerVal = 30;
+  const td = document.getElementById('ltimer-display');
+  td.textContent = timerVal; td.classList.remove('warn');
+  timerInterval = setInterval(() => {
+    timerVal--;
+    td.textContent = timerVal;
+    if (timerVal <= 10) td.classList.add('warn');
+    if (timerVal <= 0) clearInterval(timerInterval);
+  }, 1000);
+}
+
+function revealFossil() {
+  clearInterval(timerInterval);
+  const r = document.getElementById('lq-reveal');
+  r.textContent = '✓ ' + FOSSIL_CLUES[lqIndex].answer;
+  r.style.display = 'block';
+}
+
+function awardLightning() {
+  scores[parseInt(document.getElementById('lteam-select').value)] += 1;
+  renderLiveScores('live-scores-lightning');
+}
+
+function nextLightning() {
+  lqIndex++;
+  if (lqIndex >= FOSSIL_CLUES.length) showScores(); else loadLightning();
+}
+
+// SCORES
+function renderLiveScores(elId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const sorted = teams.map((t, i) => ({t, s: scores[i], i})).sort((a,b) => b.s - a.s);
+  el.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+    sorted.map(x => `<div class="score-chip"><span style="color:${TEAM_COLORS[x.i]};font-size:10px;">●</span>${x.t}<span class="pts">${x.s}</span></div>`).join('') + '</div>';
+}
+
+function renderMenuScores() {
+  const el = document.getElementById('menu-scores');
+  if (!el) return;
+  const sorted = teams.map((t, i) => ({t, s: scores[i], i})).sort((a,b) => b.s - a.s);
+  el.innerHTML = sorted.map(x => `<div class="score-chip"><span style="color:${TEAM_COLORS[x.i]};font-size:10px;">●</span>${x.t}<span class="pts">${x.s}</span></div>`).join('');
+}
+
+function showScores() {
+  showScreen('scoreboard');
+  const sorted = teams.map((t, i) => ({t, s: scores[i], i})).sort((a,b) => b.s - a.s);
+  const podColors = ['#f5a623','#b0b8c8','#c87533'];
+  const podHeights = [130, 100, 80];
+  const top3 = sorted.slice(0,3);
+  const podOrder = top3.length >= 2 ? [top3[1], top3[0], top3[2]].filter(Boolean) : top3;
+  const podHeightMap = top3.length >= 2 ? [podHeights[1], podHeights[0], podHeights[2]] : podHeights;
+  document.getElementById('podium-display').innerHTML = podOrder.map((x, pi) => {
+    const rank = top3.indexOf(x);
+    return `<div class="podium-col">
+      <div class="podium-block" style="background:${podColors[rank]};height:${podHeights[rank]}px;">
+        <span class="podium-rank" style="color:${rank===0?'#3d2800':rank===1?'#2a2a2a':'#2a1500'}">${['🥇','🥈','🥉'][rank]}</span>
+        <span class="podium-name" style="color:${rank===0?'#3d2800':rank===1?'#2a2a2a':'#2a1500'}">${x.t}</span>
+        <span class="podium-score" style="color:${rank===0?'#3d2800':rank===1?'#2a2a2a':'#2a1500'}">${x.s}</span>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('full-scores').innerHTML = sorted.map((x,i) =>
+    `<div class="full-rank"><div style="display:flex;align-items:center;gap:10px;"><span class="rank-num">${i+1}</span><span style="width:10px;height:10px;border-radius:50%;background:${TEAM_COLORS[x.i]};display:inline-block;"></span>${x.t}</div><span class="rank-pts">${x.s} pts</span></div>`
+  ).join('');
+}
+
+function resetGame() {
+  scores = scores.map(() => 0);
+  showScores();
+}
+
+buildSetup();
+</script>
+</body>
+</html>
